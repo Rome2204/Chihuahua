@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart THPT Exam Prep - Ôn Tập Đề Cương Thông Minh GDPT 2018</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Marked.js for Rendering Markdown in Chat and Explanations -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(51, 65, 85, 0.8); border-radius: 9999px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(99, 102, 241, 0.8); }
+        .fade-in { animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white custom-scrollbar">
+
+    <!-- HEADER -->
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="resetToWelcome()">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/25 text-xl font-bold">
+                    🎓
+                </div>
+                <div>
+                    <h1 class="text-base sm:text-lg font-bold tracking-tight bg-gradient-to-r from-indigo-400 via-violet-300 to-purple-400 bg-clip-text text-transparent">
+                        Smart THPT Exam Prep
+                    </h1>
+                    <p class="text-[11px] text-slate-400 font-medium hidden sm:block">Ôn tập đề cương đa trang & Chấm bài AI (GDPT 2018)</p>
+                </div>
+            </div>
+
+            <!-- Header Actions -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <button onclick="openApiKeyModal()" class="flex items-center gap-2 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/80 rounded-xl text-xs font-semibold transition-all shadow-sm">
+                    <i class="fa-solid fa-key text-amber-400"></i>
+                    <span id="apiKeyStatusText">Cấu hình API Key</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN APP CONTAINER -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- LEFT COLUMN: CONTROLS, SUBJECTS, UPLOAD & TUTOR (4 COLS) -->
+        <div class="lg:col-span-4 space-y-6">
+            
+            <!-- 1. Subject Selector (8 GDPT 2018 Subjects) -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-3">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                        <i class="fa-solid fa-book-bookmark text-indigo-400"></i> 1. Chọn Môn Học
+                    </h2>
+                    <span class="text-[10px] bg-indigo-950 text-indigo-300 border border-indigo-800/80 px-2 py-0.5 rounded-md font-semibold">8 Môn GDPT</span>
+                </div>
+                <div id="subjectGrid" class="grid grid-cols-2 gap-2">
+                    <!-- Subject Buttons Rendered by JS -->
+                </div>
+            </div>
+
+            <!-- 2. Multi-Page Image & Audio Upload -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                        <i class="fa-solid fa-images text-indigo-400"></i> 2. Tải Ảnh Đề Cương
+                    </h2>
+                    <span class="text-[10px] text-slate-400">Đa trang (Trang 1, 2...)</span>
+                </div>
+                
+                <p class="text-[11px] text-slate-400 leading-relaxed">
+                    AI sẽ tự động nhận diện chữ in máy, loại bỏ nét chì/viết tay và nối liền mạch câu bị ngắt giữa các trang.
+                </p>
+
+                <!-- Dropzone Area -->
+                <label id="dropZone" 
+                    ondragover="handleDragOver(event)" 
+                    ondragleave="handleDragLeave(event)" 
+                    ondrop="handleDrop(event)"
+                    class="border-2 border-dashed border-slate-700 hover:border-indigo-500/80 bg-slate-950/60 hover:bg-slate-950 rounded-xl p-5 flex flex-col items-center justify-center cursor-pointer transition-all group text-center">
+                    
+                    <div class="w-10 h-10 rounded-full bg-indigo-950 text-indigo-400 flex items-center justify-center text-lg mb-2 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                    </div>
+                    <span class="text-xs font-semibold text-slate-200">Kéo & thả hoặc bấm để chọn ảnh</span>
+                    <span class="text-[10px] text-slate-500 mt-1">Chọn đồng thời nhiều trang (JPG, PNG, WEBP)</span>
+                    <input type="file" id="multiImageInput" multiple accept="image/*" class="hidden" onchange="handleMultipleImagesUpload(event)">
+                </label>
+
+                <!-- Thumbnail Preview Grid -->
+                <div id="imagePreviewContainer" class="grid grid-cols-3 gap-2 empty:hidden pt-2"></div>
+
+                <!-- English Audio Listening Section -->
+                <div id="englishListeningBox" class="pt-3 border-t border-slate-800/80 space-y-2 hidden">
+                    <label class="block text-xs font-semibold text-indigo-300 flex items-center gap-1.5">
+                        <i class="fa-solid fa-headphones text-amber-400"></i> File Audio Nghe (Môn Tiếng Anh):
+                    </label>
+                    <input type="file" id="audioInput" accept="audio/*" onchange="handleAudioUpload(event)"
+                        class="w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer">
+                </div>
+
+                <!-- Process Button -->
+                <button onclick="processAllPagesWithGemini()" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Quét Đề & Tạo Bài Tập AI
+                </button>
+
+                <!-- Demo Button -->
+                <button onclick="loadSubjectDemoData()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700/70 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-play text-emerald-400"></i> Chạy Thử Đề Mẫu Môn Đang Chọn
+                </button>
+            </div>
+
+            <!-- 3. AI Tutor & Question Modifier Panel -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col h-[340px]">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                        <i class="fa-solid fa-robot text-indigo-400"></i> 3. Trợ Lý AI Tutor & Sửa Đề
+                    </h2>
+                    <span class="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Gemini 1.5 Flash
+                    </span>
+                </div>
+
+                <!-- Quick Prompts -->
+                <div class="flex gap-1.5 mb-2 overflow-x-auto custom-scrollbar pb-1 text-[10px]">
+                    <button onclick="quickPrompt('Giải thích chi tiết hơn về các đáp án đúng/sai')" class="whitespace-nowrap px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700">
+                        💡 Bổ sung lời giải
+                    </button>
+                    <button onclick="quickPrompt('Hãy tạo thêm 2 câu hỏi biến thể tương tự đề thi này')" class="whitespace-nowrap px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700">
+                        🔄 Tạo câu hỏi biến thể
+                    </button>
+                </div>
+
+                <!-- Chat History -->
+                <div id="chatMessages" class="flex-1 bg-slate-950 rounded-xl p-3 overflow-y-auto space-y-2.5 text-xs border border-slate-800/80 custom-scrollbar mb-3">
+                    <div class="text-slate-500 italic text-[11px]">
+                        Xin chào! Tôi là AI Tutor. Tôi có thể giải thích chi tiết các câu hỏi khó hoặc giúp bạn tạo đề thi biến thể mới.
+                    </div>
+                </div>
+
+                <!-- Input Chat -->
+                <div class="flex gap-2">
+                    <input type="text" id="chatInput" placeholder="Hỏi AI hoặc yêu cầu sửa đề..." 
+                        class="flex-1 bg-slate-950 border border-slate-800 focus:border-indigo-500 text-xs rounded-xl px-3 py-2 text-slate-200 outline-none">
+                    <button onclick="sendAiChatMessage()" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-all">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN: EXAM QUIZ & LISTENING PLAYER (8 COLS) -->
+        <div class="lg:col-span-8 space-y-6">
+            
+            <!-- Listening Player for English -->
+            <div id="audioPlayerContainer" class="bg-gradient-to-r from-indigo-950 via-slate-900 to-slate-900 border border-indigo-500/30 rounded-2xl p-4 shadow-xl hidden flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3 w-full sm:w-auto">
+                    <div class="p-3 bg-indigo-600 text-white rounded-xl text-lg shadow-md flex-shrink-0">
+                        <i class="fa-solid fa-headphones"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xs font-bold text-slate-100">Bài Nghe Listening (Tiếng Anh)</h3>
+                        <p id="audioFileName" class="text-[10px] text-slate-400">Đã sẵn sàng phát bài nghe</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+                    <audio id="listeningAudio" controls class="w-full sm:w-72 h-9 accent-indigo-500"></audio>
+                    <select id="playbackSpeed" onchange="changeAudioSpeed(this.value)" class="bg-slate-800 border border-slate-700 text-[11px] text-slate-200 rounded-lg px-2 py-1 outline-none">
+                        <option value="0.75">0.75x</option>
+                        <option value="1.0" selected>1.0x</option>
+                        <option value="1.25">1.25x</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Quiz Screen & Score Container -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl min-h-[600px] flex flex-col justify-between">
+                <div>
+                    <!-- Exam Header Bar -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-800 gap-4 mb-6">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span id="subjectBadge" class="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-indigo-950 text-indigo-300 border border-indigo-800">
+                                    Tiếng Anh
+                                </span>
+                                <span id="questionCountBadge" class="text-[11px] text-slate-400">0 câu hỏi</span>
+                            </div>
+                            <h2 id="currentSubjectTitle" class="text-lg sm:text-xl font-bold text-white">Chưa chọn đề cương</h2>
+                        </div>
+                        <button id="submitExamBtn" onclick="submitExam()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-check-double"></i> Nộp Bài & Chấm Điểm
+                        </button>
+                    </div>
+
+                    <!-- Questions List Container -->
+                    <div id="questionsContainer" class="space-y-6">
+                        <div class="text-center py-24 text-slate-500 space-y-3">
+                            <div class="text-5xl">📄</div>
+                            <p class="text-sm">Chưa có câu hỏi. Hãy chọn môn và upload ảnh đề cương (hoặc bấm "Chạy thử đề mẫu").</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Result Score Board -->
+                <div id="scoreBoard" class="mt-8 pt-5 border-t border-slate-800 hidden fade-in">
+                    <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div class="flex items-center gap-4">
+                            <div id="scoreCircle" class="w-16 h-16 rounded-2xl bg-indigo-600 flex items-center justify-center font-black text-2xl text-white shadow-lg border-2 border-indigo-400">
+                                0đ
+                            </div>
+                            <div>
+                                <h3 id="scoreTitle" class="text-base font-bold text-white">Kết quả bài làm</h3>
+                                <p id="scoreDetail" class="text-xs text-slate-400 mt-0.5">Lời giải chi tiết từng câu đã được mở ở phía dưới.</p>
+                            </div>
+                        </div>
+                        <button onclick="quickPrompt('Hãy nhận xét điểm mạnh và yếu của bài làm này giúp tôi')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-indigo-300 border border-indigo-800 rounded-xl text-xs font-semibold">
+                            🤖 Nhờ AI nhận xét bài làm
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- MODAL: GEMINI API KEY CONFIGURATION -->
+    <div id="apiKeyModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden transition-opacity">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl relative fade-in">
+            <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-2">
+                    <div class="p-2 bg-indigo-500/10 text-indigo-400 rounded-lg">⚙️</div>
+                    <h3 class="text-base font-bold text-white">Cấu Hình Google Gemini API</h3>
+                </div>
+                <button onclick="closeApiKeyModal()" class="text-slate-400 hover:text-white text-lg font-bold p-1">✕</button>
+            </div>
+
+            <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+                Khóa API được lưu an toàn trực tiếp trên trình duyệt của bạn (<code class="text-indigo-300">localStorage</code>) và không bao giờ đẩy lên GitHub.
+            </p>
+
+            <div class="space-y-3 mb-4">
+                <label class="block text-xs font-semibold text-slate-300">Google Gemini API Key:</label>
+                <div class="relative">
+                    <input type="password" id="apiKeyInput" placeholder="AIzaSy..." 
+                        class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 text-slate-100 rounded-xl px-3.5 py-2.5 text-xs outline-none transition-all pr-10 font-mono" />
+                    <button type="button" onclick="toggleApiKeyVisibility()" class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-200 text-xs">
+                        👁️
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-3 mb-5">
+                <p class="text-[11px] text-slate-400">
+                    🔑 Lấy API Key miễn phí 100% tại: 
+                    <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" class="text-indigo-400 hover:underline font-bold">
+                        Google AI Studio ↗
+                    </a>
+                </p>
+            </div>
+
+            <div class="flex items-center justify-end gap-2">
+                <button onclick="clearApiKey()" class="px-3.5 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 rounded-xl text-xs font-semibold transition-all">
+                    Xóa Key
+                </button>
+                <button onclick="saveApiKey()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-indigo-600/20">
+                    Lưu cài đặt
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT APP LOGIC -->
+    <script>
+        /* ================= STATE MANAGEMENT ================= */
+        const API_KEY_STORAGE = 'SMART_THPT_GEMINI_KEY';
+        
+        const SUBJECTS = [
+            { id: 'English', name: 'Tiếng Anh', icon: '🇬🇧', hasAudio: true },
+            { id: 'Math', name: 'Toán học', icon: '📐', hasAudio: false },
+            { id: 'Physics', name: 'Vật lý', icon: '⚡', hasAudio: false },
+            { id: 'Chemistry', name: 'Hóa học', icon: '🧪', hasAudio: false },
+            { id: 'Biology', name: 'Sinh học', icon: '🧬', hasAudio: false },
+            { id: 'History', name: 'Lịch sử', icon: '📜', hasAudio: false },
+            { id: 'Technology', name: 'Công nghệ', icon: '💻', hasAudio: false },
+            { id: 'Informatics', name: 'Tin học', icon: '🖥️', hasAudio: false }
+        ];
+
+        let currentSubject = 'English';
+        let uploadedImagesList = [];
+        let parsedQuestions = [];
+        let isExamSubmitted = false;
+
+        /* ================= DEMO DATA FOR ALL 8 SUBJECTS ================= */
+        const DEMO_EXAMS = {
+            'English': [
+                {
+                    id: 1,
+                    type: 'multiple_choice',
+                    question: 'Question 1: Mark the letter A, B, C, or D to indicate the word whose underlined part differs from the other three in pronunciation.',
+                    options: ['A. wanted', 'B. stopped', 'C. looked', 'D. missed'],
+                    correctAnswer: 'A',
+                    explanation: '"wanted" phát âm đuôi -ed là /ɪd/, trong khi các từ còn lại phát âm là /t/.'
+                },
+                {
+                    id: 2,
+                    type: 'true_false',
+                    question: 'Question 2: Read the statements regarding modern communication technology and decide whether each is True or False.',
+                    items: [
+                        { label: 'a', text: 'Social media allows instant global communication.', correct: true },
+                        { label: 'b', text: 'Traditional letters are faster than email for sending urgent business documents.', correct: false },
+                        { label: 'c', text: 'Non-verbal signals include gestures and facial expressions.', correct: true },
+                        { label: 'd', text: 'Cybersecurity measures are unnecessary when browsing public Wi-Fi.', correct: false }
+                    ],
+                    explanation: 'Ý a, c đúng theo thực tế công nghệ; ý b sai vì thư điện tử nhanh hơn; ý d sai vì Wi-Fi công cộng rất dễ bị tấn công mạng.'
+                },
+                {
+                    id: 3,
+                    type: 'short_answer',
+                    question: 'Question 3: Give the correct form of the word in brackets: "Nam is always ________ (success) in his national competitions because of hard work."',
+                    correctAnswer: 'successful',
+                    explanation: 'Sau động từ to-be "is" và trạng từ "always" cần một tính từ. Tính từ của "success" là "successful".'
+                }
+            ],
+            'Math': [
+                {
+                    id: 1,
+                    type: 'multiple_choice',
+                    question: 'Câu 1: Tập nghiệm của bất phương trình log₂(x - 1) < 3 là:',
+                    options: ['A. (1; 9)', 'B. (1; 8)', 'C. (-∞; 9)', 'D. (0; 9)'],
+                    correctAnswer: 'A',
+                    explanation: 'Điều kiện xác định: x - 1 > 0 <=> x > 1. BPT tương đương x - 1 < 2³ = 8 <=> x < 9. Kết hợp điều kiện được (1; 9).'
+                },
+                {
+                    id: 2,
+                    type: 'true_false',
+                    question: 'Câu 2 (Đúng/Sai về khảo sát hàm số): Cho hàm số y = f(x) = x³ - 3x + 2.',
+                    items: [
+                        { label: 'a', text: 'Hàm số đồng biến trên khoảng (-∞; -1) và (1; +∞).', correct: true },
+                        { label: 'b', text: 'Điểm cực đại của đồ thị hàm số là (1; 0).', correct: false },
+                        { label: 'c', text: 'Giá trị cực tiểu của hàm số bằng 0.', correct: true },
+                        { label: 'd', text: 'Đồ thị hàm số cắt trục tung tại điểm có tung độ bằng 2.', correct: true }
+                    ],
+                    explanation: 'y\' = 3x² - 3 = 0 <=> x = ±1. Điểm cực đại là (-1; 4) nên b sai; cực tiểu tại x=1, y=0 nên c đúng.'
+                },
+                {
+                    id: 3,
+                    type: 'short_answer',
+                    question: 'Câu 3: Tính đạo hàm của hàm số y = e^(2x) tại điểm x = 0.',
+                    correctAnswer: '2',
+                    explanation: "y' = 2*e^(2x). Tại x = 0, y'(0) = 2*e^0 = 2."
+                }
+            ],
+            'Physics': [
+                {
+                    id: 1,
+                    type: 'multiple_choice',
+                    question: 'Câu 1: Một vật dao động điều hòa với phương trình x = 5cos(10t - π/3) cm. Tần số góc ω là:',
+                    options: ['A. 10 rad/s', 'B. 5 rad/s', 'C. 2π rad/s', 'D. 10π rad/s'],
+                    correctAnswer: 'A',
+                    explanation: 'Theo dạng chuẩn x = A*cos(ωt + φ), đại lượng đứng trước t là tần số góc ω = 10 rad/s.'
+                },
+                {
+                    id: 2,
+                    type: 'true_false',
+                    question: 'Câu 2 (Đúng/Sai về Sóng cơ học): Nhận định về giao thoa sóng cơ trên mặt nước:',
+                    items: [
+                        { label: 'a', text: 'Hai nguồn kết hợp phải cùng tần số và độ lệch pha không đổi.', correct: true },
+                        { label: 'b', text: 'Khoảng cách giữa 2 cực đại giao thoa liên tiếp trên đường nối 2 nguồn là λ.', correct: false },
+                        { label: 'c', text: 'Biên độ cực đại tại điểm giao thoa bằng tổng biên độ hai sóng thành phần.', correct: true },
+                        { label: 'd', text: 'Sóng dừng là trường hợp đặc biệt của giao thoa sóng.', correct: true }
+                    ],
+                    explanation: 'Ý b sai vì khoảng cách giữa 2 cực đại liên tiếp trên đoạn nối 2 nguồn chỉ là λ/2.'
+                },
+                {
+                    id: 3,
+                    type: 'short_answer',
+                    question: 'Câu 3: Một con lắc lò xo có độ cứng k = 100 N/m mang vật m = 0.1 kg. Chu kỳ dao động riêng T bằng bao nhiêu giây? (Lấy π ≈ 3.14)',
+                    correctAnswer: '0.2',
+                    explanation: 'T = 2π * √(m/k) = 2 * 3.14 * √(0.1 / 100) = 0.197 ≈ 0.2s.'
+                }
+            ],
+            'Chemistry': [
+                {
+                    id: 1,
+                    type: 'multiple_choice',
+                    question: 'Câu 1: Nguyên tố X có số hiệu nguyên tử Z = 17. X thuộc chu kỳ và nhóm nào?',
+                    options: ['A. Chu kỳ 3, nhóm VIIA', 'B. Chu kỳ 3, nhóm VA', 'C. Chu kỳ 4, nhóm VIIA', 'D. Chu kỳ 2, nhóm VIIA'],
+                    correctAnswer: 'A',
+                    explanation: 'Cấu hình electron của X (Z=17): 1s² 2s² 2p⁶ 3s² 3p⁵. Có 3 lớp electron => Chu kỳ 3; 7 e lớp ngoài cùng => Nhóm VIIA.'
+                },
+                {
+                    id: 2,
+                    type: 'true_false',
+                    question: 'Câu 2 (Đúng/Sai về Kim loại Kiềm nhóm IA):',
+                    items: [
+                        { label: 'a', text: 'Tính kim loại tăng dần từ Lithium (Li) đến Cesium (Cs).', correct: true },
+                        { label: 'b', text: 'Năng lượng ion hóa thứ nhất (I₁) tăng dần từ Li đến Cs.', correct: false },
+                        { label: 'c', text: 'Bán kính nguyên tử tăng dần theo chiều tăng số hiệu nguyên tử.', correct: true },
+                        { label: 'd', text: 'Các kim loại kiềm có nhiệt độ nóng chảy thấp.', correct: true }
+                    ],
+                    explanation: 'Ý b sai vì từ Li đến Cs bán kính tăng, lực hút hạt nhân giảm nên năng lượng ion hóa I₁ phải giảm dần.'
+                },
+                {
+                    id: 3,
+                    type: 'short_answer',
+                    question: 'Câu 3: Tính số mol của 11.2 lít khí H₂ ở điều kiện tiêu chuẩn (đktc).',
+                    correctAnswer: '0.5',
+                    explanation: 'n = V / 22.4 = 11.2 / 22.4 = 0.5 mol.'
+                }
+            ],
+            'Biology': [
+                {
+                    id: 1,
+                    type: 'multiple_choice',
+                    question: 'Câu 1: Mã di truyền có tính đặc hiệu nghĩa là:',
+                    options: ['A. Một bộ ba chỉ mã hóa cho một loại axit amin', 'B. Nhiều bộ ba mã hóa cho một loại axit amin', 'C. Tất cả loài sinh vật đều dùng chung mã di truyền', 'D. Mã di truyền được đọc liên tục từ một điểm xác định'],
+                    correctAnswer: 'A',
+                    explanation: 'Tính đặc hiệu: 1 bộ ba chỉ mã hóa cho 1 loại aa. (Phương án B là tính thoái hóa, C là tính phổ biến).'
+                },
+                {
+                    id: 2,
+                    type: 'true_false',
+                    question: 'Câu 2 (Đúng/Sai về Đột biến gen):',
+                    items: [
+                        { label: 'a', text: 'Đột biến điểm là biến đổi liên quan đến 1 cặp nucleotide.', correct: true },
+                        { label: 'b', text: 'Đột biến thay thế cặp nucleotide luôn làm thay đổi chuỗi polypeptide.', correct: false },
+                        { label: 'c', text: 'Đột biến mất hoặc thêm 1 cặp nucleotide làm dịch khung đọc mã di truyền.', correct: true },
+                        { label: 'd', text: 'Mọi đột biến gen đều biểu hiện ngay ra kiểu hình.', correct: false }
+                    ],
+                    explanation: 'Ý b sai vì mã di truyền có tính thoái hóa; ý d sai vì đột biến lặn ở trạng thái dị hợp chưa biểu hiện.'
+                },
+                {
+                    id: 3,
+                    type: 'short_answer',
+                    question: 'Câu 3: Một đoạn ADN có 3000 nucleotide, trong đó A = 600. Tính tổng số liên kết hydrogen của đoạn ADN này.',
+                    correctAnswer: '3900',
+                    explanation: 'A = T = 600 => G = X = (3000 - 2*600)/2 = 900. Tổng liên kết H = 2A + 3G = 2*600 + 3*900 = 3900.'
+                }
+            ],
+            'History': [
+                {
+                    id: 1,
+                    type: 'multiple_choice',
+                    question: 'Câu 1: Sự kiện nào đánh dấu mốc lịch sử mở ra kỷ nguyên độc lập, tự do cho dân tộc Việt Nam trong thế kỷ XX?',
+                    options: ['A. Cách mạng tháng Tám năm 1945', 'B. Chiến thắng Điện Biên Phủ 1954', 'C. Chiến dịch Hồ Chí Minh 1975', 'D. Thành lập Đảng Cộng sản Việt Nam 1930'],
+                    correctAnswer: 'A',
+                    explanation: 'Cách mạng tháng Tám năm 1945 lật đổ ách thống trị của thực dân - phong kiến, khai sinh ra nước VNDCCH.'
+                },
+                {
+                    id: 2,
+                    type: 'true_false',
+                    question: 'Câu 2 (Đúng/Sai về Trật tự thế giới 2 cực I-an-ta):',
+                    items: [
+                        { label: 'a', text: 'Trật tự I-an-ta được thỏa thuận bởi Mỹ, Liên Xô và Anh.', correct: true },
+                        { label: 'b', text: 'Chiến tranh lạnh chấm dứt hoàn toàn vào năm 1991.', correct: true },
+                        { label: 'c', text: 'Trong thời kỳ Chiến tranh lạnh không xảy ra bất kỳ cuộc chiến tranh cục bộ nào.', correct: false },
+                        { label: 'd', text: 'Xu thế chủ đạo của thế giới sau Chiến tranh lạnh là hòa bình và hợp tác phát triển.', correct: true }
+                    ],
+                    explanation: 'Ý c sai vì đã xảy ra nhiều cuộc chiến tranh cục bộ như Chiến tranh xâm lược Việt Nam, Triều Tiên...'
+                },
+                {
+                    id: 3,
+                    type: 'short_answer',
+                    question: 'Câu 3: Nguyễn Tất Thành ra đi tìm đường cứu nước tại Bến cảng Nhà Rồng vào năm nào?',
+                    correctAnswer: '1911',
+                    explanation: 'Ngày 5/6/1911, người thanh niên Nguyễn Tất Thành rời cảng Nhà Rồng ra đi tìm đường cứu nước.'
+                }
+            ],
+            'Technology': [
+                {
+                    id: 1,
+                    type: 'multiple_choice',
+                    question: 'Câu 1: Linh kiện bán dẫn nào được sử dụng phổ biến nhất để khuếch đại tín hiệu điện?',
+                    options: ['A. Transistor', 'B. Điốt', 'C. Điện trở', 'D. Tụ điện'],
+                    correctAnswer: 'A',
+                    explanation: 'Transistor là linh kiện bán dẫn active dùng để khuếch đại tín hiệu hoặc làm khóa điện tử.'
+                },
+                {
+                    id: 2,
+                    type: 'true_false',
+                    question: 'Câu 2 (Đúng/Sai về Công nghệ Thủy canh trong nông nghiệp hiện đại):',
+                    items: [
+                        { label: 'a', text: 'Trồng cây thủy canh hoàn toàn không sử dụng đất canh tác.', correct: true },
+                        { label: 'b', text: 'Dung dịch dinh dưỡng cần cung cấp cả nguyên tố đa lượng và vi lượng.', correct: true },
+                        { label: 'c', text: 'Hệ thống thủy canh không cần đo đạc và kiểm soát chỉ số pH.', correct: false },
+                        { label: 'd', text: 'Công nghệ này giúp tiết kiệm diện tích và lượng nước tưới.', correct: true }
+                    ],
+                    explanation: 'Ý c sai vì chỉ số pH và EC (độ dẫn điện) của dung dịch dinh dưỡng cần được giám sát liên tục.'
+                },
+                {
+                    id: 3,
+                    type: 'short_answer',
+                    question: 'Câu 3: Linh kiện điện tử nào có đặc tính nạp - xả điện năng và ngăn dòng điện một chiều (DC)?',
+                    correctAnswer: 'tụ điện',
+                    explanation: 'Tụ điện (Capacitor) có khả năng tích tụ điện năng và ngăn không cho dòng điện 1 chiều đi qua.'
+                }
+            ],
+            'Informatics': [
+                {
+                    id: 1,
+                    type: 'multiple_choice',
+                    question: 'Câu 1: Độ phức tạp thời gian (Time Complexity) của thuật toán Tìm kiếm Nhị phân (Binary Search) là:',
+                    options: ['A. O(log n)', 'B. O(n)', 'C. O(n log n)', 'D. O(1)'],
+                    correctAnswer: 'A',
+                    explanation: 'Binary Search chia đôi không gian tìm kiếm sau mỗi bước nên đạt độ phức tạp O(log n).'
+                },
+                {
+                    id: 2,
+                    type: 'true_false',
+                    question: 'Câu 2 (Đúng/Sai về Cơ sở dữ liệu và Mạng máy tính):',
+                    items: [
+                        { label: 'a', text: 'Khóa chính (Primary Key) trong bảng CSDL có thể chứa giá trị NULL.', correct: false },
+                        { label: 'b', text: 'Giao thức HTTPS giúp mã hóa dữ liệu truyền giữa Browser và Server.', correct: true },
+                        { label: 'c', text: 'Địa chỉ IPv4 bao gồm 32 bit được chia thành 4 octet.', correct: true },
+                        { label: 'd', text: 'SQL là ngôn ngữ lập trình hướng đối tượng.', correct: false }
+                    ],
+                    explanation: 'Ý a sai vì Khóa chính tuyệt đối không được NULL; ý d sai vì SQL là ngôn ngữ truy vấn dữ liệu.'
+                },
+                {
+                    id: 3,
+                    type: 'short_answer',
+                    question: 'Câu 3: Trong ngôn ngữ Python, kết quả của biểu thức: 17 // 5 + 17 % 5 bằng bao nhiêu?',
+                    correctAnswer: '5',
+                    explanation: '17 // 5 = 3 (chia lấy phần nguyên), 17 % 5 = 2 (chia lấy phần dư). Kết quả = 3 + 2 = 5.'
+                }
+            ]
+        };
+
+        /* ================= APP INITIALIZATION ================= */
+        document.addEventListener('DOMContentLoaded', () => {
+            renderSubjectButtons();
+            updateApiKeyUIStatus();
+            selectSubject('English');
+        });
+
+        /* ================= SUBJECT NAVIGATION ================= */
+        function renderSubjectButtons() {
+            const grid = document.getElementById('subjectGrid');
+            grid.innerHTML = SUBJECTS.map(s => `
+                <button onclick="selectSubject('${s.id}')" id="subj-btn-${s.id}" 
+                    class="flex items-center gap-2 p-2.5 rounded-xl border text-left transition-all ${currentSubject === s.id ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300 font-bold shadow-sm' : 'bg-slate-950/40 border-slate-800 hover:border-slate-700 text-slate-300'}">
+                    <span class="text-base sm:text-lg">${s.icon}</span>
+                    <span class="text-xs font-semibold truncate">${s.name}</span>
+                </button>
+            `).join('');
+        }
+
+        function selectSubject(subjectId) {
+            currentSubject = subjectId;
+            renderSubjectButtons();
+
+            const subjObj = SUBJECTS.find(s => s.id === subjectId);
+            document.getElementById('subjectBadge').innerText = subjObj.name;
+            document.getElementById('currentSubjectTitle').innerText = `Đề cương môn: ${subjObj.name}`;
+
+            const audioBox = document.getElementById('englishListeningBox');
+            const audioPlayerContainer = document.getElementById('audioPlayerContainer');
+            if (subjObj.hasAudio) {
+                audioBox.classList.remove('hidden');
+            } else {
+                audioBox.classList.add('hidden');
+                audioPlayerContainer.classList.add('hidden');
+            }
+        }
+
+        /* ================= API KEY STORAGE ================= */
+        function getStoredApiKey() {
+            return localStorage.getItem(API_KEY_STORAGE) || '';
+        }
+
+        function saveApiKey() {
+            const input = document.getElementById('apiKeyInput');
+            const key = input.value.trim();
+            if (!key) {
+                alert('Vui lòng nhập API Key hợp lệ!');
+                return;
+            }
+            localStorage.setItem(API_KEY_STORAGE, key);
+            updateApiKeyUIStatus();
+            closeApiKeyModal();
+            alert('✅ Đã lưu thành công API Key vào bộ nhớ trình duyệt!');
+        }
+
+        function clearApiKey() {
+            if (confirm('Bạn có chắc muốn xóa API Key khỏi trình duyệt?')) {
+                localStorage.removeItem(API_KEY_STORAGE);
+                document.getElementById('apiKeyInput').value = '';
+                updateApiKeyUIStatus();
+                alert('🗑️ Đã xóa API Key!');
+            }
+        }
+
+        function openApiKeyModal() {
+            document.getElementById('apiKeyInput').value = getStoredApiKey();
+            document.getElementById('apiKeyModal').classList.remove('hidden');
+        }
+
+        function closeApiKeyModal() {
+            document.getElementById('apiKeyModal').classList.add('hidden');
+        }
+
+        function toggleApiKeyVisibility() {
+            const input = document.getElementById('apiKeyInput');
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+
+        function updateApiKeyUIStatus() {
+            const key = getStoredApiKey();
+            const textEl = document.getElementById('apiKeyStatusText');
+            if (key) {
+                textEl.innerHTML = '⚙️ Key: <span class="text-emerald-400 font-bold">Đã kết nối</span>';
+            } else {
+                textEl.innerHTML = '⚙️ Key: <span class="text-amber-400 font-bold">Chưa cấu hình</span>';
+            }
+        }
+
+        /* ================= UPLOAD & PREVIEW MULTI-IMAGE ================= */
+        function handleDragOver(e) { e.preventDefault(); e.stopPropagation(); }
+        function handleDragLeave(e) { e.preventDefault(); e.stopPropagation(); }
+        function handleDrop(e) {
+            e.preventDefault(); e.stopPropagation();
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                processImageFiles(e.dataTransfer.files);
+            }
+        }
+
+        function handleMultipleImagesUpload(event) {
+            if (event.target.files && event.target.files.length > 0) {
+                processImageFiles(event.target.files);
+            }
+        }
+
+        function processImageFiles(files) {
+            const container = document.getElementById('imagePreviewContainer');
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                if (!file.type.startsWith('image/')) continue;
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const base64Data = e.target.result;
+                    uploadedImagesList.push({
+                        mimeType: file.type,
+                        data: base64Data.split(',')[1]
+                    });
+
+                    const index = uploadedImagesList.length;
+                    const thumb = document.createElement('div');
+                    thumb.className = 'relative group w-full aspect-square rounded-xl overflow-hidden border border-slate-700 bg-slate-950';
+                    thumb.innerHTML = `
+                        <img src="${base64Data}" class="w-full h-full object-cover">
+                        <span class="absolute bottom-1 right-1 bg-slate-900/90 border border-slate-800 text-[9px] text-slate-200 px-1.5 py-0.5 rounded font-bold">
+                            Trang ${index}
+                        </span>
+                    `;
+                    container.appendChild(thumb);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function handleAudioUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const audioUrl = URL.createObjectURL(file);
+                const audioPlayer = document.getElementById('listeningAudio');
+                audioPlayer.src = audioUrl;
+                document.getElementById('audioFileName').innerText = file.name;
+                document.getElementById('audioPlayerContainer').classList.remove('hidden');
+            }
+        }
+
+        function changeAudioSpeed(val) {
+            const audioPlayer = document.getElementById('listeningAudio');
+            audioPlayer.playbackRate = parseFloat(val);
+        }
+
+        /* ================= GEMINI MULTI-PAGE OCR PROCESSOR ================= */
+        async function processAllPagesWithGemini() {
+            const apiKey = getStoredApiKey();
+            if (!apiKey) {
+                openApiKeyModal();
+                alert('⚠️ Vui lòng nhập Gemini API Key trước khi quét ảnh!');
+                return;
+            }
+
+            if (uploadedImagesList.length === 0) {
+                alert('⚠️ Vui lòng chọn/tải lên ít nhất một trang ảnh đề cương!');
+                return;
+            }
+
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = `
+                <div class="text-center py-20 space-y-4">
+                    <div class="inline-block w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                    <p class="text-sm font-semibold text-indigo-300">AI đang phân tích & ghép nối ${uploadedImagesList.length} trang ảnh đề cương...</p>
+                    <p class="text-xs text-slate-500">Đang lọc bỏ nét viết tay/bút chì và chuyển đổi 3 dạng câu hỏi GDPT 2018...</p>
+                </div>
+            `;
+
+            let contentsParts = [
+                {
+                    text: `Bạn là trợ lý OCR chuyên môn cao cấp cho đề thi THPT môn ${currentSubject}.
+Dưới đây là các trang ảnh đề cương theo thứ tự từ trang đầu đến trang cuối.
+
+NHIỆM VỤ QUAN TRỌNG:
+1. Đọc tất cả các trang ảnh, ghép nối các câu hỏi bị ngắt giữa các trang.
+2. CỰC KỲ QUAN TRỌNG: Loại bỏ hoàn toàn tất cả các nét viết chì, nét bút mực viết tay của học sinh. Chỉ lấy phần câu hỏi IN BẰNG MÁY GỐC.
+3. Phân loại câu hỏi thành đúng 3 dạng chuẩn của Bộ GD&ĐT:
+   - "multiple_choice": Trắc nghiệm 4 đáp án (A, B, C, D).
+   - "true_false": Câu hỏi Đúng/Sai gồm 4 ý a, b, c, d.
+   - "short_answer": Câu hỏi trả lời ngắn điền từ/số.
+
+Trả về duy nhất CHUỖI JSON thuần (không chứa markdown \`\`\`json):
+[
+  {
+    "id": 1,
+    "type": "multiple_choice",
+    "question": "Nội dung...",
+    "options": ["A. ...", "B. ...", "C. ...", "D. ..."],
+    "correctAnswer": "A",
+    "explanation": "Lời giải chi tiết..."
+  },
+  {
+    "id": 2,
+    "type": "true_false",
+    "question": "Nội dung...",
+    "items": [
+      {"label": "a", "text": "...", "correct": true},
+      {"label": "b", "text": "...", "correct": false},
+      {"label": "c", "text": "...", "correct": true},
+      {"label": "d", "text": "...", "correct": false}
+    ],
+    "explanation": "Lời giải chi tiết..."
+  },
+  {
+    "id": 3,
+    "type": "short_answer",
+    "question": "Nội dung...",
+    "correctAnswer": "đáp án",
+    "explanation": "Lời giải chi tiết..."
+  }
+]`
+                }
+            ];
+
+            uploadedImagesList.forEach((img, idx) => {
+                contentsParts.push({ text: `--- TRANG ĐỀ CƯƠNG SỐ ${idx + 1} ---` });
+                contentsParts.push({
+                    inline_data: {
+                        mime_type: img.mimeType,
+                        data: img.data
+                    }
+                });
+            });
+
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: contentsParts }] })
+                });
+
+                if (!response.ok) throw new Error("Không thể kết nối Gemini API.");
+                const resJson = await response.json();
+                const rawText = resJson.candidates[0].content.parts[0].text;
+                
+                const cleanJson = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+                parsedQuestions = JSON.parse(cleanJson);
+                renderQuestions(parsedQuestions);
+            } catch (err) {
+                console.error(err);
+                alert("Lỗi xử lý OCR: " + err.message + "\nHệ thống sẽ chuyển sang đề mẫu.");
+                loadSubjectDemoData();
+            }
+        }
+
+        function loadSubjectDemoData() {
+            parsedQuestions = DEMO_EXAMS[currentSubject] || DEMO_EXAMS['English'];
+            renderQuestions(parsedQuestions);
+        }
+
+        function resetToWelcome() {
+            parsedQuestions = [];
+            uploadedImagesList = [];
+            document.getElementById('imagePreviewContainer').innerHTML = '';
+            document.getElementById('scoreBoard').classList.add('hidden');
+            renderQuestions([]);
+        }
+
+        /* ================= RENDER QUIZ & INTERACTION ================= */
+        function renderQuestions(questions) {
+            isExamSubmitted = false;
+            document.getElementById('scoreBoard').classList.add('hidden');
+            document.getElementById('questionCountBadge').innerText = `${questions.length} câu hỏi`;
+
+            const container = document.getElementById('questionsContainer');
+            if (!questions || questions.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-24 text-slate-500 space-y-3">
+                        <div class="text-5xl">📄</div>
+                        <p class="text-sm">Chưa có câu hỏi. Hãy chọn môn và upload ảnh đề cương (hoặc bấm "Chạy thử đề mẫu").</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = questions.map((q, idx) => {
+                let qBodyHtml = '';
+
+                if (q.type === 'multiple_choice') {
+                    qBodyHtml = `
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mt-3">
+                            ${q.options.map(opt => {
+                                const key = opt.charAt(0);
+                                return `
+                                    <label id="opt-label-${q.id}-${key}" class="flex items-center gap-3 p-3 rounded-xl border border-slate-800 bg-slate-950/60 hover:bg-slate-900 cursor-pointer text-xs transition-all">
+                                        <input type="radio" name="q_${q.id}" value="${key}" class="accent-indigo-500 w-4 h-4">
+                                        <span class="font-semibold text-slate-200">${opt}</span>
+                                    </label>
+                                `;
+                            }).join('')}
+                        </div>
+                    `;
+                } else if (q.type === 'true_false') {
+                    qBodyHtml = `
+                        <div class="space-y-2 mt-3">
+                            ${q.items.map(item => `
+                                <div class="p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                                    <span class="text-slate-300"><b class="text-indigo-400 mr-1.5">${item.label})</b> ${item.text}</span>
+                                    <div class="flex items-center gap-3 flex-shrink-0">
+                                        <label class="flex items-center gap-1 cursor-pointer">
+                                            <input type="radio" name="tf_${q.id}_${item.label}" value="true" class="accent-emerald-500">
+                                            <span class="text-emerald-400 font-semibold">Đúng</span>
+                                        </label>
+                                        <label class="flex items-center gap-1 cursor-pointer">
+                                            <input type="radio" name="tf_${q.id}_${item.label}" value="false" class="accent-rose-500">
+                                            <span class="text-rose-400 font-semibold">Sai</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } else {
+                    qBodyHtml = `
+                        <div class="mt-3">
+                            <input type="text" id="short_${q.id}" placeholder="Nhập đáp án tự luận/trả lời ngắn..." 
+                                class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 text-slate-100 rounded-xl px-3.5 py-2.5 text-xs outline-none">
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="bg-slate-950/40 border border-slate-800/90 rounded-2xl p-5 space-y-3 fade-in">
+                        <div class="flex items-start justify-between gap-3">
+                            <h3 class="font-bold text-sm sm:text-base text-white">
+                                <span class="text-indigo-400 mr-1.5">Câu ${idx + 1}:</span> ${q.question}
+                            </h3>
+                            <span class="text-[10px] font-bold px-2 py-0.5 bg-slate-800 text-slate-400 rounded-md flex-shrink-0">
+                                ${q.type === 'multiple_choice' ? 'Nhiều Lựa Chọn' : q.type === 'true_false' ? 'Đúng/Sai' : 'Trả Lời Ngắn'}
+                            </span>
+                        </div>
+                        ${qBodyHtml}
+                        <div id="exp_${q.id}" class="hidden mt-4 p-4 rounded-xl bg-indigo-950/40 border border-indigo-900/50 text-xs space-y-1.5 fade-in">
+                            <p class="font-bold text-indigo-300 flex items-center gap-1.5">
+                                <i class="fa-solid fa-lightbulb text-amber-400"></i> Lời Giải Chi Tiết AI:
+                            </p>
+                            <div class="text-slate-300 leading-relaxed">${marked.parse(q.explanation || 'Chưa có giải thích.')}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        /* ================= GRADING SYSTEM ================= */
+        function submitExam() {
+            if (!parsedQuestions || parsedQuestions.length === 0) {
+                alert('Chưa có bài thi để chấm điểm!');
+                return;
+            }
+
+            isExamSubmitted = true;
+            let totalPts = 0;
+            let maxPts = parsedQuestions.length * 2;
+
+            parsedQuestions.forEach(q => {
+                const expEl = document.getElementById(`exp_${q.id}`);
+                if (expEl) expEl.classList.remove('hidden');
+
+                if (q.type === 'multiple_choice') {
+                    const selected = document.querySelector(`input[name="q_${q.id}"]:checked`);
+                    const userVal = selected ? selected.value : null;
+
+                    ['A', 'B', 'C', 'D'].forEach(k => {
+                        const lbl = document.getElementById(`opt-label-${q.id}-${k}`);
+                        if (lbl) {
+                            if (k === q.correctAnswer) {
+                                lbl.className = "flex items-center gap-3 p-3 rounded-xl border-2 border-emerald-500 bg-emerald-950/40 text-xs font-bold text-emerald-300";
+                            } else if (k === userVal) {
+                                lbl.className = "flex items-center gap-3 p-3 rounded-xl border-2 border-rose-500 bg-rose-950/40 text-xs font-bold text-rose-300";
+                            }
+                        }
+                    });
+
+                    if (userVal === q.correctAnswer) totalPts += 2;
+                } else if (q.type === 'true_false') {
+                    let subCorrect = 0;
+                    q.items.forEach(item => {
+                        const selected = document.querySelector(`input[name="tf_${q.id}_${item.label}"]:checked`);
+                        if (selected && (selected.value === 'true') === item.correct) {
+                            subCorrect++;
+                        }
+                    });
+                    
+                    if (subCorrect === 1) totalPts += 0.5;
+                    else if (subCorrect === 2) totalPts += 1.0;
+                    else if (subCorrect === 3) totalPts += 1.5;
+                    else if (subCorrect === 4) totalPts += 2.0;
+                } else {
+                    const input = document.getElementById(`short_${q.id}`);
+                    if (input) {
+                        const userText = input.value.trim().toLowerCase();
+                        const correctText = q.correctAnswer.trim().toLowerCase();
+                        if (userText === correctText || (userText && correctText.includes(userText))) {
+                            totalPts += 2;
+                            input.className = "w-full bg-slate-950 border-2 border-emerald-500 text-emerald-300 rounded-xl px-3.5 py-2.5 text-xs outline-none font-bold";
+                        } else {
+                            input.className = "w-full bg-slate-950 border-2 border-rose-500 text-rose-300 rounded-xl px-3.5 py-2.5 text-xs outline-none font-bold";
+                        }
+                    }
+                }
+            });
+
+            const finalGrade = ((totalPts / maxPts) * 10).toFixed(1);
+            document.getElementById('scoreCircle').innerText = `${finalGrade}đ`;
+            document.getElementById('scoreBoard').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        /* ================= AI CHAT TUTOR ================= */
+        function quickPrompt(text) {
+            document.getElementById('chatInput').value = text;
+            sendAiChatMessage();
+        }
+
+        async function sendAiChatMessage() {
+            const input = document.getElementById('chatInput');
+            const userMsg = input.value.trim();
+            if (!userMsg) return;
+
+            appendChatMessage('user', userMsg);
+            input.value = '';
+
+            const apiKey = getStoredApiKey();
+            const msgId = appendChatMessage('ai', '⏳ AI đang suy nghĩ...');
+
+            if (!apiKey) {
+                setTimeout(() => {
+                    updateChatMessage(msgId, "⚠️ Bạn chưa nhập Gemini API Key. Hãy bấm nút 'Cấu hình API Key' ở thanh header để trò chuyện thực tế với AI Tutor nhé!");
+                }, 800);
+                return;
+            }
+
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+                const contextPrompt = `Bạn là trợ lý AI Tutor ôn thi THPT môn ${currentSubject}.
+Dữ liệu đề thi hiện tại: ${JSON.stringify(parsedQuestions)}.
+Học sinh hỏi: ${userMsg}.
+Hãy trả lời ngắn gọn, dễ hiểu, trình bày mạch lạc.`;
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: contextPrompt }] }] })
+                });
+
+                const resJson = await response.json();
+                const replyText = resJson.candidates[0].content.parts[0].text;
+                updateChatMessage(msgId, replyText);
+            } catch (err) {
+                updateChatMessage(msgId, "Lỗi kết nối AI: " + err.message);
+            }
+        }
+
+        function appendChatMessage(role, text) {
+            const container = document.getElementById('chatMessages');
+            const id = 'chat-' + Date.now();
+            const div = document.createElement('div');
+            div.className = `flex gap-2 ${role === 'user' ? 'justify-end' : ''}`;
+
+            if (role === 'ai') {
+                div.innerHTML = `
+                    <div class="w-5 h-5 rounded-full bg-indigo-600 flex items-center justify-center text-[10px] flex-shrink-0 mt-0.5">🤖</div>
+                    <div id="${id}" class="bg-slate-900 border border-slate-800 p-2.5 rounded-xl rounded-tl-none max-w-[85%] leading-relaxed">
+                        ${marked.parse(text)}
+                    </div>
+                `;
+            } else {
+                div.innerHTML = `
+                    <div id="${id}" class="bg-indigo-600 text-white p-2.5 rounded-xl rounded-tr-none max-w-[85%] leading-relaxed font-medium">
+                        ${text}
+                    </div>
+                `;
+            }
+
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+            return id;
+        }
+
+        function updateChatMessage(id, text) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.innerHTML = marked.parse(text);
+                const container = document.getElementById('chatMessages');
+                container.scrollTop = container.scrollHeight;
+            }
+        }
+    </script>
+</body>
+</html>
